@@ -8,7 +8,54 @@ import time
 
 st.set_page_config(page_title="Frac Fluid Calculator", layout="wide")
 
-st.title(" Frac Fluid Calculation Tool v2.0")
+# === Custom CSS Styling & Animations ===
+st.markdown("""
+<style>
+/* Glowing Title */
+.glow-text {
+  font-size: 40px;
+  font-weight: bold;
+  color: #00ffcc;
+  text-align: center;
+  animation: glow 2s infinite;
+}
+@keyframes glow {
+  0% { text-shadow: 0 0 5px #00ffcc; }
+  50% { text-shadow: 0 0 20px #00ffcc, 0 0 30px #009999; }
+  100% { text-shadow: 0 0 5px #00ffcc; }
+}
+
+/* Typewriter effect for remarks */
+.typewriter {
+  overflow: hidden;
+  border-right: .15em solid orange;
+  white-space: nowrap;
+  animation: typing 3s steps(40, end), blink .75s step-end infinite;
+}
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+@keyframes blink {
+  50% { border-color: transparent }
+}
+
+/* Fancy Hover Buttons */
+div.stButton > button {
+  background-color: #0066cc;
+  color: white;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+div.stButton > button:hover {
+  background-color: #00cc88;
+  transform: scale(1.1);
+}
+</style>
+""", unsafe_allow_html=True)
+
+# === Title with glow effect ===
+st.markdown('<p class="glow-text">🧪 Frac Fluid Calculation Tool v2.0</p>', unsafe_allow_html=True)
 st.markdown("Upload a FracFocus PDF or enter values manually to calculate fluid volumes.")
 
 # --- PDF Extraction ---
@@ -125,7 +172,7 @@ def calculate(total_water_volume, water_percent, hcl_percent, proppant_percents,
     }
 
 # === Single Well Mode ===
-st.markdown("##  Single Well Mode")
+st.markdown("## 🛢 Single Well Mode")
 
 uploaded_file = st.file_uploader("📄 Upload a single FracFocus PDF", type=["pdf"], key="single")
 
@@ -157,7 +204,7 @@ with st.sidebar:
     gas_type = st.selectbox("Gas Type", ["None", "Nitrogen (N2)", "Carbon Dioxide (CO2)"])
     gas_percent = st.number_input("Gas Concentration (%)", value=values.get("gas_percent", 0.0), step=0.0001)
 
-submitted = st.button(" Calculate (Single Well)")
+submitted = st.button("🚀 Calculate (Single Well)")
 
 if submitted:
     result = calculate(total_water_volume, water_percent, hcl_percent, proppant_percents, gas_percent, gas_type)
@@ -175,7 +222,8 @@ if submitted:
         elif val is not None:
             st.write(f"**{key}:** {val}")
 
-    st.info(f" {result['Remarks']}")
+    # Typewriter remarks
+    st.markdown(f'<p class="typewriter">📌 {result["Remarks"]}</p>', unsafe_allow_html=True)
 
     if result["Total % Mass (Water+Acid+Proppant)"] < 90 or result["Total % Mass (Water+Acid+Proppant)"] > 110:
         st.warning("⚠️ Mass balance outside 90–110%. Please verify input values.")
@@ -202,7 +250,7 @@ if submitted:
 
 # === Multi-Well Batch Mode ===
 st.markdown("---")
-st.markdown("##  Multi-Well Batch Mode")
+st.markdown("## 📂 Multi-Well Batch Mode")
 
 fun_phrases = [
     "🚀 Now we are talking!",
@@ -258,6 +306,3 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
-
-
-
