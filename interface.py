@@ -6,13 +6,10 @@ import math
 
 st.set_page_config(page_title="Frac Fluid Calculator", layout="wide")
 
-st.title("🧪 Frac Fluid Calculation Tool v2.7")
+st.title("🧪 Frac Fluid Calculation Tool v3.1")
 st.markdown("Upload a FracFocus PDF or enter values manually to calculate fluid volumes.")
 
-# --- PDF Upload ---
-uploaded_file = st.file_uploader("📄 Upload FracFocus PDF", type=["pdf"])
-
-# === PDF Extraction ===
+# --- PDF Extraction ---
 def extract_values_from_pdf(file):
     raw_lines = []
     with pdfplumber.open(file) as pdf:
@@ -56,7 +53,11 @@ def extract_values_from_pdf(file):
                     return float(nums[-1])
         return None
 
-    total_water = re.search(r"Total Base Water Volume.*?:\s*(\d+)", "\n".join(fixed_lines), re.IGNORECASE)
+    total_water = re.search(
+        r"Total Base Water Volume.*?:\s*(\d+)",
+        "\n".join(fixed_lines),
+        re.IGNORECASE
+    )
 
     return {
         "total_water_volume": int(total_water.group(1)) if total_water else None,
@@ -67,7 +68,7 @@ def extract_values_from_pdf(file):
         "raw_lines": fixed_lines
     }
 
-# === Calculation Logic ===
+# --- Calculation Logic ---
 def calculate(total_water_volume, water_percent, hcl_percent, proppant_percents, gas_percent, gas_type):
     WATER_DENSITY_LBPGAL = 8.3454
     HCL_DENSITY_LBPGAL = 8.95
@@ -96,11 +97,11 @@ def calculate(total_water_volume, water_percent, hcl_percent, proppant_percents,
     if gas_type == "Nitrogen (N2)" and gas_percent > 0:
         gas_weight_lbs = (gas_percent / 100) * total_water_weight
         nitrogen_volume_scf = gas_weight_lbs * 13.803
-        remark = f"Nitrogen included at {gas_percent:.2f}% → {nitrogen_volume_scf:,.0f} SCF estimated."
+        remark = f"Nitrogen included at {gas_percent:.2f}% → {nitrogen_volume_scf:.0f} SCF estimated."
     elif gas_type == "Carbon Dioxide (CO2)" and gas_percent > 0:
         gas_weight_lbs = (gas_percent / 100) * total_water_weight
         co2_weight_tons = gas_weight_lbs / 2000
-        remark = f"CO₂ included at {gas_percent:.2f}% → {co2_weight_tons:,.2f} tons estimated."
+        remark = f"CO₂ included at {gas_percent:.2f}% → {co2_weight_tons:.2f} tons estimated."
     else:
         remark = "No gas contribution reported."
 
@@ -121,7 +122,11 @@ def calculate(total_water_volume, water_percent, hcl_percent, proppant_percents,
         "Remarks": remark
     }
 
-# === Autofill from PDF ===
+# === Single Well Mode ===
+st.markdown("## 🛢 Single Well Mode")
+
+uploaded_file = st.file_uploader("📄 Upload a single FracFocus PDF", type=["pdf"], key="single")
+
 values = {
     "total_water_volume": None,
     "water_percent": None,
@@ -134,9 +139,8 @@ if uploaded_file:
     st.success("✅ PDF uploaded. Extracting values...")
     values.update(extract_values_from_pdf(uploaded_file))
 
-# === Sidebar Inputs ===
 with st.sidebar:
-    st.header("⚙️ Inputs")
+    st.header("⚙️ Inputs (Single Well)")
     total_water_volume = st.number_input("Total Base Water Volume (gallons)", value=float(values["total_water_volume"] or 0), step=1.0, format="%.0f")
     water_percent = st.number_input("Water Concentration (%)", value=values["water_percent"] or 0.0, step=0.0001)
     hcl_percent = st.number_input("HCL Concentration (%)", value=values["hcl_percent"] or 0.0, step=0.0001)
@@ -151,18 +155,16 @@ with st.sidebar:
     gas_type = st.selectbox("Gas Type", ["None", "Nitrogen (N2)", "Carbon Dioxide (CO2)"])
     gas_percent = st.number_input("Gas Concentration (%)", value=values.get("gas_percent", 0.0), step=0.0001)
 
-# === Calculate Button in Main Page ===
-submitted = st.button("🚀 Calculate")
+submitted = st.button("🚀 Calculate (Single Well)")
 
-# === Show Results ===
 if submitted:
     result = calculate(total_water_volume, water_percent, hcl_percent, proppant_percents, gas_percent, gas_type)
-    
+
     # KPI Cards
     col1, col2, col3 = st.columns(3)
-    col1.metric("FF Fluid Volume (bbl)", f"{result['Total FF Fluid Volume (bbl)']:,.2f}")
-    col2.metric("Proppant to Fluid Ratio (PPG)", f"{result['Proppant to Fluid Ratio (PPG)']:,.2f}")
-    col3.metric("% Mass", f"{result['Total % Mass (Water+Acid+Proppant)']:,.2f}%")
+    col1.metric("FF Fluid Volume (bbl)", f"{result['Total FF Fluid Volume (bbl)']:.2f}")
+    col2.metric("Proppant to Fluid Ratio (PPG)", f"{result['Proppant to Fluid Ratio (PPG)']:.2f}")
+    col3.metric("% Mass", f"{result['Total % Mass (Water+Acid+Proppant)']:.2f}%")
 
     st.markdown("### 🧮 Detailed Results")
     for key, val in result.items():
@@ -171,22 +173,16 @@ if submitted:
         elif val is not None:
             st.write(f"**{key}:** {val}")
 
-    # Remarks
     st.info(f"📌 {result['Remarks']}")
 
-    # Warning check
     if result["Total % Mass (Water+Acid+Proppant)"] < 90 or result["Total % Mass (Water+Acid+Proppant)"] > 110:
         st.warning("⚠️ Mass balance outside 90–110%. Please verify input values.")
 
-    # --- Copy-as-CSV (tab-separated for Excel paste) ---
+    # Copy-as-CSV (tab separated)
     df = pd.DataFrame([result])
-
-    # Convert to tab-delimited text
-    tsv_text = df.to_csv(index=False, sep="\t")
-
+    tsv_text = df.to_csv(index=False, sep="\t", float_format="%.2f")
     st.text_area("📋 Copy Results (Excel-friendly)", tsv_text, height=200)
-    st.caption("Tip: Click inside, Ctrl+A, Ctrl+C, then paste into Excel → values split into columns automatically.")
-
+    st.caption("Tip: Ctrl+A → Ctrl+C → Paste into Excel → splits into columns.")
 
     # Excel Export
     excel_file = "frac_fluid_results.xlsx"
@@ -202,4 +198,36 @@ if submitted:
         col2.markdown("**Parsed Values**")
         col2.write(values)
 
+# === Multi-Well Batch Mode ===
+st.markdown("---")
+st.markdown("## 📂 Multi-Well Batch Mode")
 
+uploaded_files = st.file_uploader("📄 Upload multiple FracFocus PDFs", type=["pdf"], accept_multiple_files=True, key="multi")
+
+if uploaded_files:
+    all_results = []
+    for file in uploaded_files:
+        try:
+            vals = extract_values_from_pdf(file)
+            calc = calculate(
+                vals["total_water_volume"] or 0,
+                vals["water_percent"] or 0.0,
+                vals["hcl_percent"] or 0.0,
+                [vals["proppant_percent"] or 0.0],
+                vals["gas_percent"] or 0.0,
+                "None"
+            )
+            calc["File"] = file.name
+            all_results.append(calc)
+        except Exception as e:
+            st.error(f"❌ Failed to process {file.name}: {e}")
+
+    if all_results:
+        batch_df = pd.DataFrame(all_results)
+        st.markdown("### 📊 Batch Results Summary")
+        st.dataframe(batch_df)
+
+        excel_file = "multi_well_results.xlsx"
+        batch_df.to_excel(excel_file, index=False)
+        with open(excel_file, "rb") as f:
+            st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
