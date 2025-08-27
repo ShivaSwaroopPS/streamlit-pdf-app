@@ -3,19 +3,10 @@ import pdfplumber
 import re
 import pandas as pd
 import math
-import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Frac Fluid Calculator", layout="wide")
 
-# === Theme toggle ===
-theme = st.sidebar.radio("🎨 Theme", ["Light", "Dark"])
-if theme == "Dark":
-    st.markdown(
-        "<style>body {background-color: #1e1e1e; color: white;}</style>",
-        unsafe_allow_html=True
-    )
-
-st.title("🧪 Frac Fluid Calculation Tool v2.3")
+st.title("🧪 Frac Fluid Calculation Tool v2.4")
 st.markdown("Upload a FracFocus PDF or enter values manually to calculate fluid volumes.")
 
 # --- PDF Upload ---
@@ -179,28 +170,33 @@ if submitted:
     col3.metric("% Mass", f"{result['Total % Mass (Water+Acid+Proppant)']:,.2f}%")
 
     st.markdown("### 🧮 Detailed Results")
+    results_text = []
     for key, val in result.items():
         if isinstance(val, (int, float)) and not pd.isna(val):
-            st.write(f"**{key}:** {val:,.2f}")
+            line = f"**{key}:** {val:,.2f}"
         elif val is not None:
-            st.write(f"**{key}:** {val}")
+            line = f"**{key}:** {val}"
+        else:
+            continue
+        st.write(line)
+        results_text.append(line)
 
     # Remarks
     st.info(f"📌 {result['Remarks']}")
+    results_text.append(f"Remarks: {result['Remarks']}")
 
     # Warning check
     if result["Total % Mass (Water+Acid+Proppant)"] < 90 or result["Total % Mass (Water+Acid+Proppant)"] > 110:
         st.warning("⚠️ Mass balance outside 90–110%. Please verify input values.")
 
-    # Smaller Pie Chart
-    # Really small Pie Chart
-    labels = ["Water", "HCL", "Proppant"]
-    sizes = [water_percent, hcl_percent, sum(proppant_percents)]
-    fig, ax = plt.subplots(figsize=(0.5, 0.5))  # very compact
-    ax.pie(sizes, labels=labels, autopct='%1.1f%%', shadow=True, startangle=90, textprops={'fontsize': 6})
-    ax.axis('equal')
-    st.pyplot(fig)
-
+    # --- Copy Button ---
+    results_str = "\n".join(results_text)
+    st.markdown(f"""
+        <button style="padding:6px 12px; background-color:#4CAF50; color:white; border:none; border-radius:5px; cursor:pointer;"
+            onclick="navigator.clipboard.writeText(`{results_str}`)">
+            📋 Copy Results
+        </button>
+    """, unsafe_allow_html=True)
 
     # Excel Export
     excel_file = "frac_fluid_results.xlsx"
@@ -216,5 +212,3 @@ if submitted:
         col1.write(values["raw_lines"])
         col2.markdown("**Parsed Values**")
         col2.write(values)
-
-
