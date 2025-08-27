@@ -91,11 +91,12 @@ if st.button("Refresh Loader"):
         placeholder.markdown(f'<div class="terminal">{msg}</div>', unsafe_allow_html=True)
         time.sleep(1)
 
-    # Clear all session state (reset inputs, uploads, results) but no rerun
+    # 🔄 Clear session completely
     st.session_state.clear()
+    # Change uploader key so uploaded PDF disappears
+    st.session_state["uploader_key"] = str(random.randint(1000, 9999))
+
     st.success("🔄 Session cleared. Ready for fresh input.")
-
-
 
 
 # --- PDF Extraction ---
@@ -214,7 +215,12 @@ def calculate(total_water_volume, water_percent, hcl_percent, proppant_percents,
 # === Single Well Mode ===
 st.markdown("##  Single Well Mode")
 
-uploaded_file = st.file_uploader("📄 Upload a single FracFocus PDF", type=["pdf"], key="single")
+uploaded_file = st.file_uploader(
+    "📄 Upload a FracFocus PDF",
+    type=["pdf"],
+    key=st.session_state.get("uploader_key", "default_uploader")
+)
+
 
 values = {
     "total_water_volume": None,
@@ -345,6 +351,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
