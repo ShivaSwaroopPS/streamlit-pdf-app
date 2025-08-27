@@ -178,11 +178,15 @@ if submitted:
     if result["Total % Mass (Water+Acid+Proppant)"] < 90 or result["Total % Mass (Water+Acid+Proppant)"] > 110:
         st.warning("⚠️ Mass balance outside 90–110%. Please verify input values.")
 
-    # --- Copy-as-CSV (via textarea for reliability) ---
+    # --- Copy-as-CSV (tab-separated for Excel paste) ---
     df = pd.DataFrame([result])
-    csv_text = df.to_csv(index=False)
-    st.text_area("📋 Copy Results as CSV", csv_text, height=200)
-    st.caption("Tip: Click inside, press Ctrl+A then Ctrl+C to copy.")
+
+    # Convert to tab-delimited text
+    tsv_text = df.to_csv(index=False, sep="\t")
+
+    st.text_area("📋 Copy Results (Excel-friendly)", tsv_text, height=200)
+    st.caption("Tip: Click inside, Ctrl+A, Ctrl+C, then paste into Excel → values split into columns automatically.")
+
 
     # Excel Export
     excel_file = "frac_fluid_results.xlsx"
@@ -197,3 +201,4 @@ if submitted:
         col1.write(values["raw_lines"])
         col2.markdown("**Parsed Values**")
         col2.write(values)
+
