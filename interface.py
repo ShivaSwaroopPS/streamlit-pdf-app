@@ -175,7 +175,7 @@ if submitted:
         elif val is not None:
             st.write(f"**{key}:** {val}")
 
-    st.info(f"📌 {result['Remarks']}")
+    st.info(f" {result['Remarks']}")
 
     if result["Total % Mass (Water+Acid+Proppant)"] < 90 or result["Total % Mass (Water+Acid+Proppant)"] > 110:
         st.warning("⚠️ Mass balance outside 90–110%. Please verify input values.")
@@ -258,5 +258,6 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
