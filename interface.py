@@ -17,32 +17,35 @@ body {
     color: white;
 }
 
-/* Big Black Title with Fast Fiery Glow */
-.glow-text {
-  font-size: 60px;
+/* Typing (Typewriter) Effect */
+.typewriter {
+  font-size: 50px;
   font-weight: bold;
+  color: white;
+  overflow: hidden;             /* Hide text until it's typed */
+  border-right: .15em solid orange; /* Blinking cursor */
+  white-space: nowrap;
+  margin: 0 auto;
+  letter-spacing: .1em;
   text-align: center;
-  color: black; /* Black text */
-  text-shadow: 
-      0 0 5px #ff1744,
-      0 0 10px #ff5722,
-      0 0 20px #ff9100,
-      0 0 40px #ff3d00;
-  animation: glow 0.5s infinite alternate; /* super fast bang-bang */
+  animation: typing 3s steps(40, end), blink .75s step-end infinite;
 }
 
-@keyframes glow {
-  0%   { text-shadow: 0 0 5px #ff1744, 0 0 10px #ff5722; }
-  25%  { text-shadow: 0 0 20px #ff5722, 0 0 30px #ff9100; }
-  50%  { text-shadow: 0 0 25px #ff9100, 0 0 40px #ff3d00; }
-  75%  { text-shadow: 0 0 30px #ff3d00, 0 0 50px #ff5722; }
-  100% { text-shadow: 0 0 35px #ff1744, 0 0 60px #ff9100; }
+/* Typing animation */
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+/* Cursor blink */
+@keyframes blink {
+  50% { border-color: transparent }
 }
 </style>
 """, unsafe_allow_html=True)
 
-# === Title with glow effect ===
-st.markdown('<p class="glow-text">🧪 Frac Fluid Calculation Tool v2.0</p>', unsafe_allow_html=True)
+# === Title with typing effect ===
+st.markdown('<p class="typewriter">🧪 Frac Fluid Calculation Tool v2.0</p>', unsafe_allow_html=True)
 
 # === Subtitle (smaller + grey) ===
 st.markdown("""
@@ -300,6 +303,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
