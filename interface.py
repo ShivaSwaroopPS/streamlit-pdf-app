@@ -6,7 +6,7 @@ import math
 
 st.set_page_config(page_title="Frac Fluid Calculator", layout="wide")
 
-st.title("🧪 Frac Fluid Calculation Tool v2.4")
+st.title("🧪 Frac Fluid Calculation Tool v2.5")
 st.markdown("Upload a FracFocus PDF or enter values manually to calculate fluid volumes.")
 
 # --- PDF Upload ---
@@ -170,37 +170,27 @@ if submitted:
     col3.metric("% Mass", f"{result['Total % Mass (Water+Acid+Proppant)']:,.2f}%")
 
     st.markdown("### 🧮 Detailed Results")
-    results_text = []
-    for key, val in result.items():
-        if isinstance(val, (int, float)) and not pd.isna(val):
-            line = f"**{key}:** {val:,.2f}"
-        elif val is not None:
-            line = f"**{key}:** {val}"
-        else:
-            continue
-        st.write(line)
-        results_text.append(line)
+    df = pd.DataFrame([result])
+    st.dataframe(df)
 
     # Remarks
     st.info(f"📌 {result['Remarks']}")
-    results_text.append(f"Remarks: {result['Remarks']}")
 
     # Warning check
     if result["Total % Mass (Water+Acid+Proppant)"] < 90 or result["Total % Mass (Water+Acid+Proppant)"] > 110:
         st.warning("⚠️ Mass balance outside 90–110%. Please verify input values.")
 
-    # --- Copy Button ---
-    results_str = "\n".join(results_text)
+    # --- Copy as CSV Button ---
+    csv_text = df.to_csv(index=False)
     st.markdown(f"""
-        <button style="padding:6px 12px; background-color:#4CAF50; color:white; border:none; border-radius:5px; cursor:pointer;"
-            onclick="navigator.clipboard.writeText(`{results_str}`)">
-            📋 Copy Results
+        <button style="padding:6px 12px; background-color:#2196F3; color:white; border:none; border-radius:5px; cursor:pointer;"
+            onclick="navigator.clipboard.writeText(`{csv_text}`)">
+            📋 Copy Results as CSV
         </button>
     """, unsafe_allow_html=True)
 
     # Excel Export
     excel_file = "frac_fluid_results.xlsx"
-    df = pd.DataFrame([result])
     df.to_excel(excel_file, index=False)
     with open(excel_file, "rb") as f:
         st.download_button("⬇️ Download Excel", f, file_name=excel_file, mime="application/vnd.ms-excel")
