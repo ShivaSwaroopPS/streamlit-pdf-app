@@ -8,72 +8,8 @@ import time
 
 st.set_page_config(page_title="Frac Fluid Calculator", layout="wide")
 
-# === Custom CSS Styling & Animations ===
-st.markdown("""
-<style>
-/* Full black background */
-body {
-    background-color: #000000;
-    color: white;
-}
-
-/* 🔥 Fire Typewriter Effect (one-time) */
-.typewriter {
-  font-size: 36px;        /* smaller size */
-  font-weight: bold;
-  color: #ffcc00;         /* golden fire text */
-  display: inline-block;
-  overflow: hidden;
-  border-right: .15em solid #ff4500; /* blinking fire cursor */
-  white-space: nowrap;
-  letter-spacing: .1em;
-  width: 0;
-  animation: typing 4s steps(35, end) forwards,   /* type once & stay */
-             blink .75s step-end infinite,
-             fireglow 1s infinite alternate;
-  text-shadow:
-     0 0 5px #ff6600,
-     0 0 10px #ff3300,
-     0 0 20px #ff0000;
-}
-
-/* Type once then stop */
-@keyframes typing {
-  from { width: 0 }
-  to { width: 35ch }   /* match text length */
-}
-
-/* Cursor blink */
-@keyframes blink {
-  50% { border-color: transparent }
-}
-
-/* Fire glow flicker */
-@keyframes fireglow {
-  from { text-shadow: 0 0 5px #ff6600, 0 0 15px #ff3300, 0 0 25px #ff0000; }
-  to   { text-shadow: 0 0 10px #ffaa00, 0 0 20px #ff5500, 0 0 30px #ff2200; }
-}
-</style>
-""", unsafe_allow_html=True)
-
-# === Title with fire typing effect ===
-st.markdown(
-    '<div style="text-align:center;"><span class="typewriter">🧪 Frac Fluid Calculation Tool v2.0</span></div>',
-    unsafe_allow_html=True
-)
-
-# === Subtitle (smaller + grey) ===
-st.markdown("""
-<p style='text-align:center; font-size:12px; color: #888888;'>
-Upload a FracFocus PDF or enter values manually to calculate fluid volumes.
-</p>
-""", unsafe_allow_html=True)
-
-
-
-
-
-
+st.title(" Frac Fluid Calculation Tool v2.0")
+st.markdown("Upload a FracFocus PDF or enter values manually to calculate fluid volumes.")
 
 # --- PDF Extraction ---
 def extract_values_from_pdf(file):
@@ -221,7 +157,7 @@ with st.sidebar:
     gas_type = st.selectbox("Gas Type", ["None", "Nitrogen (N2)", "Carbon Dioxide (CO2)"])
     gas_percent = st.number_input("Gas Concentration (%)", value=values.get("gas_percent", 0.0), step=0.0001)
 
-submitted = st.button("🚀 Calculate (Single Well)")
+submitted = st.button(" Calculate (Single Well)")
 
 if submitted:
     result = calculate(total_water_volume, water_percent, hcl_percent, proppant_percents, gas_percent, gas_type)
@@ -239,8 +175,7 @@ if submitted:
         elif val is not None:
             st.write(f"**{key}:** {val}")
 
-    # Typewriter remarks
-    st.markdown(f'<p class="typewriter">📌 {result["Remarks"]}</p>', unsafe_allow_html=True)
+    st.info(f" {result['Remarks']}")
 
     if result["Total % Mass (Water+Acid+Proppant)"] < 90 or result["Total % Mass (Water+Acid+Proppant)"] > 110:
         st.warning("⚠️ Mass balance outside 90–110%. Please verify input values.")
@@ -267,7 +202,7 @@ if submitted:
 
 # === Multi-Well Batch Mode ===
 st.markdown("---")
-st.markdown("## Multi-Well Batch Mode")
+st.markdown("##  Multi-Well Batch Mode")
 
 fun_phrases = [
     "🚀 Now we are talking!",
@@ -323,16 +258,5 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
-
-
-
-
-
-
-
-
-
-
-
 
 
