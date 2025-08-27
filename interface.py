@@ -1,3 +1,78 @@
+import streamlit as st 
+import pdfplumber
+import re
+import pandas as pd
+import math
+import random
+import time
+
+st.set_page_config(page_title="Frac Fluid Calculator", layout="wide")
+
+# === Custom CSS Styling & Animations for WHITE background ===
+st.markdown("""
+<style>
+/* 🔥 Fire Typewriter Effect (dark text on white) */
+.typewriter {
+  font-size: 40px;        /* medium size */
+  font-weight: bold;
+  color: #222222;         /* dark grey/black text for contrast */
+  display: inline-block;
+  overflow: hidden;
+  border-right: .15em solid #ff4500; /* blinking cursor */
+  white-space: nowrap;
+  letter-spacing: .1em;
+  width: 0;
+  animation: typing 4s steps(40, end) forwards,   /* type once & stay */
+             blink .75s step-end infinite,
+             fireglow 1s infinite alternate;
+  text-shadow:
+     0 0 5px #ff9900,
+     0 0 10px #ff6600,
+     0 0 20px #ff3300;
+}
+
+/* Type once then stop */
+@keyframes typing {
+  from { width: 0 }
+  to { width: 40ch }
+}
+
+/* Cursor blink */
+@keyframes blink {
+  50% { border-color: transparent }
+}
+
+/* Fire glow flicker */
+@keyframes fireglow {
+  from { text-shadow: 0 0 5px #ff9900, 0 0 10px #ff6600, 0 0 20px #ff3300; }
+  to   { text-shadow: 0 0 10px #ffcc00, 0 0 15px #ff5500, 0 0 25px #ff2200; }
+}
+
+/* Terminal style text for hacker loader */
+.terminal {
+  font-size: 14px;
+  color: #00FF00;
+  background-color: #000000;
+  font-family: "Courier New", monospace;
+  padding: 10px;
+  border-radius: 5px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# === Title with typing effect ===
+st.markdown(
+    '<div style="text-align:center;"><span class="typewriter">🧪 Frac Fluid Calculation Tool v2.0</span></div>',
+    unsafe_allow_html=True
+)
+
+# === Subtitle (smaller + softer grey) ===
+st.markdown("""
+<p style='text-align:center; font-size:13px; color: #666666;'>
+Upload a FracFocus PDF or enter values manually to calculate fluid volumes.
+</p>
+""", unsafe_allow_html=True)
+
 # === Hacker Loader Button ===
 if st.button("💻 Run Hacker Loader"):
     messages = [
@@ -15,6 +90,7 @@ if st.button("💻 Run Hacker Loader"):
     for msg in messages:
         placeholder.markdown(f'<div class="terminal">{msg}</div>', unsafe_allow_html=True)
         time.sleep(1)
+
 
 
 # --- PDF Extraction ---
@@ -264,6 +340,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
