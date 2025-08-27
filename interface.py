@@ -1,4 +1,10 @@
 import streamlit as st
+import pdfplumber
+import re
+import pandas as pd
+import math
+import random
+import time
 
 st.set_page_config(page_title="Frac Fluid Calculator", layout="wide")
 
@@ -11,18 +17,18 @@ body {
     color: white;
 }
 
-/* 🔥 Fire Typewriter Effect */
+/* 🔥 Fire Typewriter Effect (one-time) */
 .typewriter {
   font-size: 36px;        /* smaller size */
   font-weight: bold;
-  color: #ffcc00;         /* golden yellow text */
+  color: #ffcc00;         /* golden fire text */
   display: inline-block;
   overflow: hidden;
   border-right: .15em solid #ff4500; /* blinking fire cursor */
   white-space: nowrap;
   letter-spacing: .1em;
   width: 0;
-  animation: typing 4s steps(35, end) infinite alternate,
+  animation: typing 4s steps(35, end) forwards,   /* type once & stay */
              blink .75s step-end infinite,
              fireglow 1s infinite alternate;
   text-shadow:
@@ -31,11 +37,10 @@ body {
      0 0 20px #ff0000;
 }
 
-/* Typing + deleting loop */
+/* Type once then stop */
 @keyframes typing {
-  0%   { width: 0 }
-  50%  { width: 35ch }   /* type full */
-  100% { width: 0 }      /* delete back */
+  from { width: 0 }
+  to { width: 35ch }   /* match text length */
 }
 
 /* Cursor blink */
@@ -63,6 +68,7 @@ st.markdown("""
 Upload a FracFocus PDF or enter values manually to calculate fluid volumes.
 </p>
 """, unsafe_allow_html=True)
+
 
 
 
@@ -317,6 +323,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
