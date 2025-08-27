@@ -6,7 +6,7 @@ import math
 
 st.set_page_config(page_title="Frac Fluid Calculator", layout="wide")
 
-st.title("🧪 Frac Fluid Calculation Tool v2.6")
+st.title("🧪 Frac Fluid Calculation Tool v2.7")
 st.markdown("Upload a FracFocus PDF or enter values manually to calculate fluid volumes.")
 
 # --- PDF Upload ---
@@ -21,7 +21,6 @@ def extract_values_from_pdf(file):
             if text:
                 raw_lines.extend(text.splitlines())
 
-    # Fix common line splits
     fixed_lines = []
     skip_next = False
     for i in range(len(raw_lines) - 1):
@@ -78,7 +77,6 @@ def calculate(total_water_volume, water_percent, hcl_percent, proppant_percents,
     total_mass_percent = (water_percent or 0) + (hcl_percent or 0) + total_proppant_percent
 
     total_water_weight = total_water_volume * WATER_DENSITY_LBPGAL
-
     total_acid_weight = (hcl_percent / 100) * total_water_weight if hcl_percent else 0
     total_acid_volume_gal = total_acid_weight / HCL_DENSITY_LBPGAL if total_acid_weight else 0
     total_acid_volume_bbl = total_acid_volume_gal / GALLONS_PER_BBL if total_acid_volume_gal else 0
@@ -139,10 +137,7 @@ if uploaded_file:
 # === Sidebar Inputs ===
 with st.sidebar:
     st.header("⚙️ Inputs")
-    total_water_volume = st.number_input(
-        "Total Base Water Volume (gallons)", 
-        value=float(values["total_water_volume"] or 0), step=1.0, format="%.0f"
-    )
+    total_water_volume = st.number_input("Total Base Water Volume (gallons)", value=float(values["total_water_volume"] or 0), step=1.0, format="%.0f")
     water_percent = st.number_input("Water Concentration (%)", value=values["water_percent"] or 0.0, step=0.0001)
     hcl_percent = st.number_input("HCL Concentration (%)", value=values["hcl_percent"] or 0.0, step=0.0001)
 
@@ -170,7 +165,6 @@ if submitted:
     col3.metric("% Mass", f"{result['Total % Mass (Water+Acid+Proppant)']:,.2f}%")
 
     st.markdown("### 🧮 Detailed Results")
-    # Show results vertically
     for key, val in result.items():
         if isinstance(val, (int, float)) and not pd.isna(val):
             st.write(f"**{key}:** {val:,.2f}")
@@ -184,15 +178,11 @@ if submitted:
     if result["Total % Mass (Water+Acid+Proppant)"] < 90 or result["Total % Mass (Water+Acid+Proppant)"] > 110:
         st.warning("⚠️ Mass balance outside 90–110%. Please verify input values.")
 
-    # --- Copy as CSV Button (fixed) ---
+    # --- Copy-as-CSV (via textarea for reliability) ---
     df = pd.DataFrame([result])
-    csv_text = df.to_csv(index=False).replace("\n", "\\n").replace("\"", "\\\"")
-    st.markdown(f"""
-        <button style="padding:6px 12px; background-color:#2196F3; color:white; border:none; border-radius:5px; cursor:pointer;"
-            onclick="navigator.clipboard.writeText('{csv_text}')">
-            📋 Copy Results as CSV
-        </button>
-    """, unsafe_allow_html=True)
+    csv_text = df.to_csv(index=False)
+    st.text_area("📋 Copy Results as CSV", csv_text, height=200)
+    st.caption("Tip: Click inside, press Ctrl+A then Ctrl+C to copy.")
 
     # Excel Export
     excel_file = "frac_fluid_results.xlsx"
