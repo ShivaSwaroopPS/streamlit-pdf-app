@@ -1,10 +1,4 @@
 import streamlit as st
-import pdfplumber
-import re
-import pandas as pd
-import math
-import random
-import time
 
 st.set_page_config(page_title="Frac Fluid Calculator", layout="wide")
 
@@ -17,34 +11,47 @@ body {
     color: white;
 }
 
-/* Typing (Typewriter) Effect */
+/* 🔥 Fire Typewriter Effect */
 .typewriter {
-  font-size: 50px;
+  font-size: 36px;        /* smaller size */
   font-weight: bold;
-  color: #00ffcc;  /* ✅ Visible neon cyan text */
+  color: #ffcc00;         /* golden yellow text */
   display: inline-block;
   overflow: hidden;
-  border-right: .15em solid orange; /* blinking cursor */
+  border-right: .15em solid #ff4500; /* blinking fire cursor */
   white-space: nowrap;
   letter-spacing: .1em;
-  width: 0;  
-  animation: typing 4s steps(35, end) forwards, blink .75s step-end infinite;
+  width: 0;
+  animation: typing 4s steps(35, end) infinite alternate,
+             blink .75s step-end infinite,
+             fireglow 1s infinite alternate;
+  text-shadow:
+     0 0 5px #ff6600,
+     0 0 10px #ff3300,
+     0 0 20px #ff0000;
 }
 
-/* Typing animation */
+/* Typing + deleting loop */
 @keyframes typing {
-  from { width: 0 }
-  to { width: 35ch }   /* set based on text length */
+  0%   { width: 0 }
+  50%  { width: 35ch }   /* type full */
+  100% { width: 0 }      /* delete back */
 }
 
 /* Cursor blink */
 @keyframes blink {
   50% { border-color: transparent }
 }
+
+/* Fire glow flicker */
+@keyframes fireglow {
+  from { text-shadow: 0 0 5px #ff6600, 0 0 15px #ff3300, 0 0 25px #ff0000; }
+  to   { text-shadow: 0 0 10px #ffaa00, 0 0 20px #ff5500, 0 0 30px #ff2200; }
+}
 </style>
 """, unsafe_allow_html=True)
 
-# === Title with typing effect ===
+# === Title with fire typing effect ===
 st.markdown(
     '<div style="text-align:center;"><span class="typewriter">🧪 Frac Fluid Calculation Tool v2.0</span></div>',
     unsafe_allow_html=True
@@ -52,10 +59,11 @@ st.markdown(
 
 # === Subtitle (smaller + grey) ===
 st.markdown("""
-<p style='text-align:center; font-size:14px; color: #aaaaaa;'>
+<p style='text-align:center; font-size:12px; color: #888888;'>
 Upload a FracFocus PDF or enter values manually to calculate fluid volumes.
 </p>
 """, unsafe_allow_html=True)
+
 
 
 
@@ -309,6 +317,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
