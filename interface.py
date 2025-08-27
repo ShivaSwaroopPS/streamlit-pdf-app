@@ -8,8 +8,67 @@ import time
 
 st.set_page_config(page_title="Frac Fluid Calculator", layout="wide")
 
-st.title(" Frac Fluid Calculation Tool v2.0")
-st.markdown("Upload a FracFocus PDF or enter values manually to calculate fluid volumes.")
+# === Custom CSS Styling & Animations ===
+st.markdown("""
+<style>
+/* Full black background */
+body {
+    background-color: #000000;
+    color: white;
+}
+
+/* 🔥 Fire Typewriter Effect (bright + visible) */
+.typewriter {
+  font-size: 36px;        /* smaller size */
+  font-weight: bold;
+  color: #ffff66;         /* bright yellow text for visibility */
+  display: inline-block;
+  overflow: hidden;
+  border-right: .15em solid #ff4500; /* blinking fire cursor */
+  white-space: nowrap;
+  letter-spacing: .1em;
+  width: 0;
+  animation: typing 4s steps(40, end) forwards,   /* type once & stay */
+             blink .75s step-end infinite,
+             fireglow 1s infinite alternate;
+  text-shadow:
+     0 0 10px #ff6600,
+     0 0 20px #ff3300,
+     0 0 30px #ff0000,
+     0 0 40px #ff2200;
+}
+
+/* Type once then stop */
+@keyframes typing {
+  from { width: 0 }
+  to { width: 40ch }   /* match text length */
+}
+
+/* Cursor blink */
+@keyframes blink {
+  50% { border-color: transparent }
+}
+
+/* Fire glow flicker */
+@keyframes fireglow {
+  from { text-shadow: 0 0 10px #ff6600, 0 0 20px #ff3300, 0 0 30px #ff0000; }
+  to   { text-shadow: 0 0 15px #ffaa00, 0 0 25px #ff5500, 0 0 35px #ff2200; }
+}
+</style>
+""", unsafe_allow_html=True)
+
+# === Title with fire typing effect ===
+st.markdown(
+    '<div style="text-align:center;"><span class="typewriter">🧪 Frac Fluid Calculation Tool v2.0</span></div>',
+    unsafe_allow_html=True
+)
+
+# === Subtitle (smaller + grey) ===
+st.markdown("""
+<p style='text-align:center; font-size:12px; color: #888888;'>
+Upload a FracFocus PDF or enter values manually to calculate fluid volumes.
+</p>
+""", unsafe_allow_html=True)
 
 # --- PDF Extraction ---
 def extract_values_from_pdf(file):
@@ -258,5 +317,6 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
