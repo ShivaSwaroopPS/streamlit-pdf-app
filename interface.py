@@ -6,7 +6,7 @@ import math
 
 st.set_page_config(page_title="Frac Fluid Calculator", layout="wide")
 
-st.title("🧪 Frac Fluid Calculation Tool v2.5")
+st.title("🧪 Frac Fluid Calculation Tool v2.6")
 st.markdown("Upload a FracFocus PDF or enter values manually to calculate fluid volumes.")
 
 # --- PDF Upload ---
@@ -170,8 +170,12 @@ if submitted:
     col3.metric("% Mass", f"{result['Total % Mass (Water+Acid+Proppant)']:,.2f}%")
 
     st.markdown("### 🧮 Detailed Results")
-    df = pd.DataFrame([result])
-    st.dataframe(df)
+    # Show results vertically
+    for key, val in result.items():
+        if isinstance(val, (int, float)) and not pd.isna(val):
+            st.write(f"**{key}:** {val:,.2f}")
+        elif val is not None:
+            st.write(f"**{key}:** {val}")
 
     # Remarks
     st.info(f"📌 {result['Remarks']}")
@@ -180,11 +184,12 @@ if submitted:
     if result["Total % Mass (Water+Acid+Proppant)"] < 90 or result["Total % Mass (Water+Acid+Proppant)"] > 110:
         st.warning("⚠️ Mass balance outside 90–110%. Please verify input values.")
 
-    # --- Copy as CSV Button ---
-    csv_text = df.to_csv(index=False)
+    # --- Copy as CSV Button (fixed) ---
+    df = pd.DataFrame([result])
+    csv_text = df.to_csv(index=False).replace("\n", "\\n").replace("\"", "\\\"")
     st.markdown(f"""
         <button style="padding:6px 12px; background-color:#2196F3; color:white; border:none; border-radius:5px; cursor:pointer;"
-            onclick="navigator.clipboard.writeText(`{csv_text}`)">
+            onclick="navigator.clipboard.writeText('{csv_text}')">
             📋 Copy Results as CSV
         </button>
     """, unsafe_allow_html=True)
