@@ -1,67 +1,75 @@
 import streamlit as st
-import pdfplumber
-import re
-import pandas as pd
-import math
-import random
 import time
+import random
 
 st.set_page_config(page_title="Frac Fluid Calculator", layout="wide")
 
-# === Custom CSS Styling & Animations for WHITE background ===
+# === Custom CSS Styling & Animations (Hacker Mode) ===
 st.markdown("""
 <style>
-/* 🔥 Fire Typewriter Effect (dark text on white) */
-.typewriter {
-  font-size: 13px;        /* medium size */
+body {
+    background-color: #000000;
+    color: #00FF00;
+    font-family: "Courier New", monospace;
+}
+
+/* Glitch Title */
+.glitch {
+  font-size: 48px;
   font-weight: bold;
-  color: #222222;         /* dark grey/black text for contrast */
-  display: inline-block;
-  overflow: hidden;
-  border-right: .15em solid #ff4500; /* blinking cursor */
-  white-space: nowrap;
-  letter-spacing: .1em;
-  width: 0;
-  animation: typing 4s steps(40, end) forwards,   /* type once & stay */
-             blink .75s step-end infinite,
-             fireglow 1s infinite alternate;
-  text-shadow:
-     0 0 5px #ff9900,
-     0 0 10px #ff6600,
-     0 0 20px #ff3300;
+  color: #00FF00;
+  text-align: center;
+  position: relative;
+  animation: glitch 1s infinite;
+}
+@keyframes glitch {
+  0% { text-shadow: 2px 0 red, -2px 0 blue; }
+  20% { text-shadow: -2px 0 red, 2px 0 blue; }
+  40% { text-shadow: 2px 0 red, -2px 0 blue; }
+  60% { text-shadow: -2px 0 red, 2px 0 blue; }
+  80% { text-shadow: 2px 0 red, -2px 0 blue; }
+  100% { text-shadow: -2px 0 red, 2px 0 blue; }
 }
 
-/* Type once then stop */
-@keyframes typing {
-  from { width: 0 }
-  to { width: 40ch }
-}
-
-/* Cursor blink */
-@keyframes blink {
-  50% { border-color: transparent }
-}
-
-/* Fire glow flicker */
-@keyframes fireglow {
-  from { text-shadow: 0 0 5px #ff9900, 0 0 10px #ff6600, 0 0 20px #ff3300; }
-  to   { text-shadow: 0 0 10px #ffcc00, 0 0 15px #ff5500, 0 0 25px #ff2200; }
+/* Terminal style text */
+.terminal {
+  font-size: 14px;
+  color: #00FF00;
+  background-color: #000000;
+  font-family: "Courier New", monospace;
+  padding: 10px;
+  border-radius: 5px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# === Title with typing effect ===
+# === Glitch Title ===
+st.markdown('<p class="glitch">🧪 Frac Fluid Calculator v2.0</p>', unsafe_allow_html=True)
+
+# === Subtitle (terminal style) ===
 st.markdown(
-    '<div style="text-align:center;"><span class="typewriter">🧪 Frac Fluid Calculation Tool v2.0</span></div>',
+    '<p style="text-align:center; font-size:14px; color:#33ff33;">Upload a FracFocus PDF or enter values manually to calculate fluid volumes.</p>',
     unsafe_allow_html=True
 )
 
-# === Subtitle (smaller + softer grey) ===
-st.markdown("""
-<p style='text-align:center; font-size:13px; color: #666666;'>
-Upload a FracFocus PDF or enter values manually to calculate fluid volumes.
-</p>
-""", unsafe_allow_html=True)
+# === Terminal Style Loader Simulation ===
+if st.button("💻 Run Hacker Loader"):
+    messages = [
+        "> Initializing system...",
+        "> Parsing chemical composition...",
+        "> Calculating proppant load...",
+        "> Normalizing water volumes...",
+        "> Running mass balance checks...",
+        "> Optimizing data pipeline...",
+        "> Finalizing results...",
+        "✅ Job complete. Ready for action."
+    ]
+
+    placeholder = st.empty()
+    for msg in messages:
+        placeholder.markdown(f'<div class="terminal">{msg}</div>', unsafe_allow_html=True)
+        time.sleep(1)  # simulate delay
+
 
 # --- PDF Extraction ---
 def extract_values_from_pdf(file):
@@ -310,6 +318,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
