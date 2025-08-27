@@ -91,6 +91,11 @@ if st.button("Refresh Loader"):
         placeholder.markdown(f'<div class="terminal">{msg}</div>', unsafe_allow_html=True)
         time.sleep(1)
 
+    # Clear all session state (reset inputs, uploads, results) but no rerun
+    st.session_state.clear()
+    st.success("🔄 Session cleared. Ready for fresh input.")
+
+
 
 
 # --- PDF Extraction ---
@@ -340,6 +345,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
