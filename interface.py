@@ -196,7 +196,7 @@ if submitted:
     # Really small Pie Chart
     labels = ["Water", "HCL", "Proppant"]
     sizes = [water_percent, hcl_percent, sum(proppant_percents)]
-    fig, ax = plt.subplots(figsize=(2, 2))  # very compact
+    fig, ax = plt.subplots(figsize=(0.5, 0.5))  # very compact
     ax.pie(sizes, labels=labels, autopct='%1.1f%%', shadow=True, startangle=90, textprops={'fontsize': 6})
     ax.axis('equal')
     st.pyplot(fig)
@@ -216,4 +216,5 @@ if submitted:
         col1.write(values["raw_lines"])
         col2.markdown("**Parsed Values**")
         col2.write(values)
+
 
