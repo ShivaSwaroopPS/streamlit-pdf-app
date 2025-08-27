@@ -74,7 +74,7 @@ Upload a FracFocus PDF or enter values manually to calculate fluid volumes.
 """, unsafe_allow_html=True)
 
 # === Hacker Loader Button ===
-if st.button("💻 Run Hacker Loader"):
+if st.button("Refresh Loader"):
     messages = [
         "> Initializing system...",
         "> Parsing chemical composition...",
@@ -340,6 +340,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
