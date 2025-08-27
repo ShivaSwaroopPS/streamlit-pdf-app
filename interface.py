@@ -17,13 +17,17 @@ body {
     color: white;
 }
 
-/* Big Glowing Title */
+/* Big Black Title with Glow Outline */
 .glow-text {
   font-size: 60px;   /* Bigger title */
   font-weight: bold;
   text-align: center;
-  color: #00ffcc;
-  text-shadow: 0 0 10px #00ffcc, 0 0 20px #00cccc, 0 0 30px #009999;
+  color: black; /* Pure black text */
+  text-shadow: 
+      0 0 5px #00ffcc,
+      0 0 10px #00cccc,
+      0 0 20px #009999,
+      0 0 30px #00ffcc;
   animation: glow 2s infinite alternate;
 }
 
@@ -302,4 +306,5 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
