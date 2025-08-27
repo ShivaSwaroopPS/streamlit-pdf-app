@@ -21,7 +21,7 @@ body {
 .typewriter {
   font-size: 50px;
   font-weight: bold;
-  color: white;
+  color: #00ffcc;  /* ✅ Visible neon cyan text */
   display: inline-block;
   overflow: hidden;
   border-right: .15em solid orange; /* blinking cursor */
@@ -56,6 +56,7 @@ st.markdown("""
 Upload a FracFocus PDF or enter values manually to calculate fluid volumes.
 </p>
 """, unsafe_allow_html=True)
+
 
 
 
@@ -308,6 +309,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
