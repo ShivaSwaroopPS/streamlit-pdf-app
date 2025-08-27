@@ -19,7 +19,7 @@ body {
 
 /* 🔥 Fire Typewriter Effect (bright + visible) */
 .typewriter {
-  font-size: 36px;        /* smaller size */
+  font-size: 16px;        /* smaller size */
   font-weight: bold;
   color: #ffff66;         /* bright yellow text for visibility */
   display: inline-block;
@@ -317,6 +317,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
