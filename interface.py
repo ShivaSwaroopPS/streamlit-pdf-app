@@ -54,7 +54,7 @@ div.stButton > button:hover {
 """, unsafe_allow_html=True)
 
 # === Title with glow effect ===
-st.markdown('<p class="glow-text">🧪 Frac Fluid Calculation Tool v2.0</p>', unsafe_allow_html=True)
+st.markdown('<p class="glow-text"> Frac Fluid Calculation Tool v2.0</p>', unsafe_allow_html=True)
 st.markdown("<p style='text-align:center; font-size:20px;'>Upload a FracFocus PDF or enter values manually to calculate fluid volumes.</p>", unsafe_allow_html=True)
 
 
@@ -172,7 +172,7 @@ def calculate(total_water_volume, water_percent, hcl_percent, proppant_percents,
     }
 
 # === Single Well Mode ===
-st.markdown("## 🛢 Single Well Mode")
+st.markdown("##  Single Well Mode")
 
 uploaded_file = st.file_uploader("📄 Upload a single FracFocus PDF", type=["pdf"], key="single")
 
@@ -250,7 +250,7 @@ if submitted:
 
 # === Multi-Well Batch Mode ===
 st.markdown("---")
-st.markdown("## 📂 Multi-Well Batch Mode")
+st.markdown("## Multi-Well Batch Mode")
 
 fun_phrases = [
     "🚀 Now we are talking!",
@@ -306,5 +306,6 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
