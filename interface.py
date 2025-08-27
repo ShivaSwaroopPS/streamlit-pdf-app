@@ -193,12 +193,14 @@ if submitted:
         st.warning("⚠️ Mass balance outside 90–110%. Please verify input values.")
 
     # Smaller Pie Chart
+    # Really small Pie Chart
     labels = ["Water", "HCL", "Proppant"]
     sizes = [water_percent, hcl_percent, sum(proppant_percents)]
-    fig, ax = plt.subplots(figsize=(4, 4))  # smaller
-    ax.pie(sizes, labels=labels, autopct='%1.1f%%', shadow=True, startangle=90)
+    fig, ax = plt.subplots(figsize=(2, 2))  # very compact
+    ax.pie(sizes, labels=labels, autopct='%1.1f%%', shadow=True, startangle=90, textprops={'fontsize': 6})
     ax.axis('equal')
     st.pyplot(fig)
+
 
     # Excel Export
     excel_file = "frac_fluid_results.xlsx"
@@ -214,3 +216,4 @@ if submitted:
         col1.write(values["raw_lines"])
         col2.markdown("**Parsed Values**")
         col2.write(values)
+
