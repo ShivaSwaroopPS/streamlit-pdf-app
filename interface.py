@@ -17,23 +17,26 @@ body {
     color: white;
 }
 
-/* Big Black Title with Fiery Glow */
+/* Big Black Title with Fast Fiery Glow */
 .glow-text {
-  font-size: 60px;   /* Bigger title */
+  font-size: 60px;
   font-weight: bold;
   text-align: center;
-  color: black; /* Pure black text */
+  color: black; /* Black text */
   text-shadow: 
       0 0 5px #ff1744,
       0 0 10px #ff5722,
       0 0 20px #ff9100,
       0 0 40px #ff3d00;
-  animation: glow 2s infinite alternate;
+  animation: glow 0.5s infinite alternate; /* super fast bang-bang */
 }
 
 @keyframes glow {
-  from { text-shadow: 0 0 10px #ff1744, 0 0 20px #ff5722, 0 0 30px #ff9100; }
-  to   { text-shadow: 0 0 20px #ff3d00, 0 0 40px #ff5722, 0 0 60px #ff9100; }
+  0%   { text-shadow: 0 0 5px #ff1744, 0 0 10px #ff5722; }
+  25%  { text-shadow: 0 0 20px #ff5722, 0 0 30px #ff9100; }
+  50%  { text-shadow: 0 0 25px #ff9100, 0 0 40px #ff3d00; }
+  75%  { text-shadow: 0 0 30px #ff3d00, 0 0 50px #ff5722; }
+  100% { text-shadow: 0 0 35px #ff1744, 0 0 60px #ff9100; }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -47,6 +50,7 @@ st.markdown("""
 Upload a FracFocus PDF or enter values manually to calculate fluid volumes.
 </p>
 """, unsafe_allow_html=True)
+
 
 # --- PDF Extraction ---
 def extract_values_from_pdf(file):
@@ -296,6 +300,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
