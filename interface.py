@@ -13,7 +13,7 @@ st.markdown("""
 <style>
 /* 🔥 Fire Typewriter Effect (dark text on white) */
 .typewriter {
-  font-size: 40px;        /* medium size */
+  font-size: 16px;        /* medium size */
   font-weight: bold;
   color: #222222;         /* dark grey/black text for contrast */
   display: inline-block;
@@ -340,6 +340,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
