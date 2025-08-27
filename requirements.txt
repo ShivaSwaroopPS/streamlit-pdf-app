@@ -2,4 +2,6 @@ streamlit==1.45.1
 pdfplumber==0.11.7
 pandas>=2.0.0
 openpyxl>=3.1.2   # needed for Excel export
-plotly>=5.24.1    # for interactive pie charts
+plotly>=5.24.1 
+matplotlib   # for interactive pie charts
+
