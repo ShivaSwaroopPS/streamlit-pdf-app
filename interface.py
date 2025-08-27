@@ -1,3 +1,14 @@
+import streamlit as st
+import pdfplumber
+import re
+import pandas as pd
+import math
+import random
+import time
+
+st.set_page_config(page_title="Frac Fluid Calculator", layout="wide")
+
+# === Custom CSS Styling & Animations ===
 st.markdown("""
 <style>
 /* Full black background */
@@ -6,25 +17,24 @@ body {
     color: white;
 }
 
-/* Typing Effect with Fixed Width */
+/* Typing (Typewriter) Effect */
 .typewriter {
   font-size: 50px;
   font-weight: bold;
   color: white;
   display: inline-block;
   overflow: hidden;
-  border-right: .15em solid orange;
+  border-right: .15em solid orange; /* blinking cursor */
   white-space: nowrap;
   letter-spacing: .1em;
-  text-align: center;
-  width: 0;  /* start hidden */
+  width: 0;  
   animation: typing 4s steps(35, end) forwards, blink .75s step-end infinite;
 }
 
-/* Keyframes with character count instead of % */
+/* Typing animation */
 @keyframes typing {
   from { width: 0 }
-  to { width: 35ch }   /* <-- Adjust to length of your text */
+  to { width: 35ch }   /* set based on text length */
 }
 
 /* Cursor blink */
@@ -34,10 +44,18 @@ body {
 </style>
 """, unsafe_allow_html=True)
 
+# === Title with typing effect ===
 st.markdown(
     '<div style="text-align:center;"><span class="typewriter">🧪 Frac Fluid Calculation Tool v2.0</span></div>',
     unsafe_allow_html=True
 )
+
+# === Subtitle (smaller + grey) ===
+st.markdown("""
+<p style='text-align:center; font-size:14px; color: #aaaaaa;'>
+Upload a FracFocus PDF or enter values manually to calculate fluid volumes.
+</p>
+""", unsafe_allow_html=True)
 
 
 
@@ -290,6 +308,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
