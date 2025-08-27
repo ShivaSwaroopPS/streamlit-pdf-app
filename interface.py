@@ -1,12 +1,10 @@
-import streamlit as st
+import streamlit as st 
 import pdfplumber
 import re
 import pandas as pd
 import math
 import random
 import time
-
-import streamlit as st
 
 st.set_page_config(page_title="Frac Fluid Calculator", layout="wide")
 
@@ -49,6 +47,16 @@ st.markdown("""
   from { text-shadow: 0 0 5px #ff9900, 0 0 10px #ff6600, 0 0 20px #ff3300; }
   to   { text-shadow: 0 0 10px #ffcc00, 0 0 15px #ff5500, 0 0 25px #ff2200; }
 }
+
+/* Terminal style text for hacker loader */
+.terminal {
+  font-size: 14px;
+  color: #00FF00;
+  background-color: #000000;
+  font-family: "Courier New", monospace;
+  padding: 10px;
+  border-radius: 5px;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -64,6 +72,23 @@ st.markdown("""
 Upload a FracFocus PDF or enter values manually to calculate fluid volumes.
 </p>
 """, unsafe_allow_html=True)
+
+# === Hacker Loader Button ===
+if st.button("💻 Run Hacker Loader"):
+    messages = [
+        "> Initializing system...",
+        "> Parsing chemical composition...",
+        "> Calculating proppant load...",
+        "> Normalizing water volumes...",
+        "> Running mass balance checks...",
+        "> Optimizing data pipeline...",
+        "> Finalizing results...",
+        "✅ Job complete. Ready for action."
+    ]
+
+    placeholder = st.empty()
+    for msg in messages:
+        placeholder.markdown(f'<div class="terminal">{msg}</div>', unsafe_allow_ht
 
 # --- PDF Extraction ---
 def extract_values_from_pdf(file):
@@ -312,6 +337,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
