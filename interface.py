@@ -167,7 +167,7 @@ if submitted:
     st.markdown("### 🧮 Detailed Results")
     for key, val in result.items():
         if isinstance(val, (int, float)) and not pd.isna(val):
-            st.write(f"**{key}:** {val:,.2f}")
+            st.write(f"**{key}:** {val:.2f}")
         elif val is not None:
             st.write(f"**{key}:** {val}")
 
@@ -201,4 +201,5 @@ if submitted:
         col1.write(values["raw_lines"])
         col2.markdown("**Parsed Values**")
         col2.write(values)
+
 
