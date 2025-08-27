@@ -6,7 +6,7 @@ import math
 
 st.set_page_config(page_title="Frac Fluid Calculator", layout="centered")
 
-st.title("🧪 Frac Fluid Calculation Tool")
+st.title("🧪 Frac Fluid Calculation Tool v2.0")
 st.markdown("Upload a FracFocus PDF or enter values manually to calculate fluid volumes.")
 
 # --- PDF Upload ---
@@ -163,6 +163,23 @@ if submitted:
     df = pd.DataFrame([result])
     st.dataframe(df.style.format("{:,.2f}"))
 
-    # Highlight mass balance check
+    # Warning check
     if result["Total % Mass (Water+Acid+Proppant)"] < 90 or result["Total % Mass (Water+Acid+Proppant)"] > 110:
         st.warning("⚠️ Mass balance outside 90–110%. Please verify input values.")
+
+    # --- Copy Button (JS-based) ---
+    csv_text = df.to_csv(index=False)
+    st.markdown(f"""
+        <button style="padding:8px 16px; background-color:#4CAF50; color:white; border:none; border-radius:5px; cursor:pointer;"
+            onclick="navigator.clipboard.writeText(`{csv_text}`)">
+            📋 Copy Results
+        </button>
+    """, unsafe_allow_html=True)
+
+    # --- Fallback Download ---
+    st.download_button(
+        "⬇️ Download Results as CSV",
+        csv_text,
+        file_name="frac_fluid_results.csv",
+        mime="text/csv"
+    )
