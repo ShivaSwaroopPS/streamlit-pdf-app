@@ -22,13 +22,13 @@ body {
   font-size: 50px;
   font-weight: bold;
   color: white;
-  overflow: hidden;             /* Hide text until it's typed */
-  border-right: .15em solid orange; /* Blinking cursor */
+  display: inline-block;        /* ✅ makes width animation work */
+  overflow: hidden;             /* ✅ hides text until revealed */
+  border-right: .15em solid orange; /* blinking cursor */
   white-space: nowrap;
-  margin: 0 auto;
   letter-spacing: .1em;
-  text-align: center;
-  animation: typing 3s steps(40, end), blink .75s step-end infinite;
+  animation: typing 4s steps(40, end), blink .75s step-end infinite;
+  width: 0;                     /* ✅ start hidden */
 }
 
 /* Typing animation */
@@ -45,7 +45,7 @@ body {
 """, unsafe_allow_html=True)
 
 # === Title with typing effect ===
-st.markdown('<p class="typewriter">🧪 Frac Fluid Calculation Tool v2.0</p>', unsafe_allow_html=True)
+st.markdown('<div style="text-align:center;"><span class="typewriter">🧪 Frac Fluid Calculation Tool v2.0</span></div>', unsafe_allow_html=True)
 
 # === Subtitle (smaller + grey) ===
 st.markdown("""
@@ -53,6 +53,7 @@ st.markdown("""
 Upload a FracFocus PDF or enter values manually to calculate fluid volumes.
 </p>
 """, unsafe_allow_html=True)
+
 
 
 # --- PDF Extraction ---
@@ -303,6 +304,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
