@@ -3,10 +3,12 @@ import pdfplumber
 import re
 import pandas as pd
 import math
+import random
+import time
 
 st.set_page_config(page_title="Frac Fluid Calculator", layout="wide")
 
-st.title("🧪 Frac Fluid Calculation Tool v3.1")
+st.title("🧪 Frac Fluid Calculation Tool v3.2")
 st.markdown("Upload a FracFocus PDF or enter values manually to calculate fluid volumes.")
 
 # --- PDF Extraction ---
@@ -178,7 +180,7 @@ if submitted:
     if result["Total % Mass (Water+Acid+Proppant)"] < 90 or result["Total % Mass (Water+Acid+Proppant)"] > 110:
         st.warning("⚠️ Mass balance outside 90–110%. Please verify input values.")
 
-    # Copy-as-CSV (tab separated)
+    # Copy-as-CSV
     df = pd.DataFrame([result])
     tsv_text = df.to_csv(index=False, sep="\t", float_format="%.2f")
     st.text_area("📋 Copy Results (Excel-friendly)", tsv_text, height=200)
@@ -202,32 +204,57 @@ if submitted:
 st.markdown("---")
 st.markdown("## 📂 Multi-Well Batch Mode")
 
-uploaded_files = st.file_uploader("📄 Upload multiple FracFocus PDFs", type=["pdf"], accept_multiple_files=True, key="multi")
+fun_phrases = [
+    "🚀 Now we are talking!",
+    "🔥 Welcome to Beast Mode!",
+    "⚡ Buckle up, big jobs ahead…",
+    "💪 Time to crush multi-well madness!",
+    "🎯 Precision loading multiple PDFs…",
+    "🌋 Explosive data power unlocked!",
+    "🛢 Big data needs big energy!",
+    "⚔️ Entering Power User Mode…",
+    "🎮 God Mode Activated…",
+    "🔮 Multi-Well Magic starts now!"
+]
 
-if uploaded_files:
-    all_results = []
-    for file in uploaded_files:
-        try:
-            vals = extract_values_from_pdf(file)
-            calc = calculate(
-                vals["total_water_volume"] or 0,
-                vals["water_percent"] or 0.0,
-                vals["hcl_percent"] or 0.0,
-                [vals["proppant_percent"] or 0.0],
-                vals["gas_percent"] or 0.0,
-                "None"
-            )
-            calc["File"] = file.name
-            all_results.append(calc)
-        except Exception as e:
-            st.error(f"❌ Failed to process {file.name}: {e}")
+if "show_batch" not in st.session_state:
+    st.session_state.show_batch = False
 
-    if all_results:
-        batch_df = pd.DataFrame(all_results)
-        st.markdown("### 📊 Batch Results Summary")
-        st.dataframe(batch_df)
+if not st.session_state.show_batch:
+    if st.button("🐉 Multi-Wells, Batch Mode"):
+        phrase = random.choice(fun_phrases)
+        st.success(phrase)
+        time.sleep(1.5)
+        st.session_state.show_batch = True
+        st.rerun()
+else:
+    st.markdown("### 📂 Upload Multiple PDFs")
+    uploaded_files = st.file_uploader("Upload multiple FracFocus PDFs", type=["pdf"], accept_multiple_files=True, key="multi")
 
-        excel_file = "multi_well_results.xlsx"
-        batch_df.to_excel(excel_file, index=False)
-        with open(excel_file, "rb") as f:
-            st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+    if uploaded_files:
+        all_results = []
+        for file in uploaded_files:
+            try:
+                vals = extract_values_from_pdf(file)
+                calc = calculate(
+                    vals["total_water_volume"] or 0,
+                    vals["water_percent"] or 0.0,
+                    vals["hcl_percent"] or 0.0,
+                    [vals["proppant_percent"] or 0.0],
+                    vals["gas_percent"] or 0.0,
+                    "None"
+                )
+                calc["File"] = file.name
+                all_results.append(calc)
+            except Exception as e:
+                st.error(f"❌ Failed to process {file.name}: {e}")
+
+        if all_results:
+            batch_df = pd.DataFrame(all_results)
+            st.markdown("### 📊 Batch Results Summary")
+            st.dataframe(batch_df)
+
+            excel_file = "multi_well_results.xlsx"
+            batch_df.to_excel(excel_file, index=False)
+            with open(excel_file, "rb") as f:
+                st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
