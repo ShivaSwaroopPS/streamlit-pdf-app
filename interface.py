@@ -15,7 +15,7 @@ if theme == "Dark":
         unsafe_allow_html=True
     )
 
-st.title("🧪 Frac Fluid Calculation Tool v2.2")
+st.title("🧪 Frac Fluid Calculation Tool v2.3")
 st.markdown("Upload a FracFocus PDF or enter values manually to calculate fluid volumes.")
 
 # --- PDF Upload ---
@@ -79,7 +79,6 @@ def extract_values_from_pdf(file):
 
 # === Calculation Logic ===
 def calculate(total_water_volume, water_percent, hcl_percent, proppant_percents, gas_percent, gas_type):
-    # Constants
     WATER_DENSITY_LBPGAL = 8.3454
     HCL_DENSITY_LBPGAL = 8.95
     GALLONS_PER_BBL = 42
@@ -87,24 +86,19 @@ def calculate(total_water_volume, water_percent, hcl_percent, proppant_percents,
     total_proppant_percent = sum(proppant_percents)
     total_mass_percent = (water_percent or 0) + (hcl_percent or 0) + total_proppant_percent
 
-    # Convert volumes to weights
     total_water_weight = total_water_volume * WATER_DENSITY_LBPGAL
 
-    # Acid
     total_acid_weight = (hcl_percent / 100) * total_water_weight if hcl_percent else 0
     total_acid_volume_gal = total_acid_weight / HCL_DENSITY_LBPGAL if total_acid_weight else 0
     total_acid_volume_bbl = total_acid_volume_gal / GALLONS_PER_BBL if total_acid_volume_gal else 0
 
-    # Fluid
     total_ff_fluid_volume_gal = total_water_volume - total_acid_volume_gal
     total_ff_fluid_volume_bbl = total_ff_fluid_volume_gal / GALLONS_PER_BBL if total_ff_fluid_volume_gal else 0
 
-    # Proppant
     total_proppant_weight = (total_proppant_percent / 100) * total_water_weight if total_proppant_percent else 0
     proppant_weight_tons = total_proppant_weight / 2000 if total_proppant_weight else 0
     ppg = total_proppant_weight / total_ff_fluid_volume_gal if total_ff_fluid_volume_gal else math.nan
 
-    # Gas
     nitrogen_volume_scf = None
     co2_weight_tons = None
     gas_weight_lbs = None
@@ -171,7 +165,8 @@ with st.sidebar:
     gas_type = st.selectbox("Gas Type", ["None", "Nitrogen (N2)", "Carbon Dioxide (CO2)"])
     gas_percent = st.number_input("Gas Concentration (%)", value=values.get("gas_percent", 0.0), step=0.0001)
 
-    submitted = st.button("🚀 Calculate")
+# === Calculate Button in Main Page ===
+submitted = st.button("🚀 Calculate")
 
 # === Show Results ===
 if submitted:
@@ -183,17 +178,12 @@ if submitted:
     col2.metric("Proppant to Fluid Ratio (PPG)", f"{result['Proppant to Fluid Ratio (PPG)']:,.2f}")
     col3.metric("% Mass", f"{result['Total % Mass (Water+Acid+Proppant)']:,.2f}%")
 
-    # Results table
-    st.markdown("### 🧮 Calculation Results")
-    df = pd.DataFrame([result])
-
-    def safe_format(x):
-        if isinstance(x, (int, float)) and not pd.isna(x):
-            return f"{x:,.2f}"
-        return x
-
-    df_display = df.applymap(safe_format)
-    st.dataframe(df_display)
+    st.markdown("### 🧮 Detailed Results")
+    for key, val in result.items():
+        if isinstance(val, (int, float)) and not pd.isna(val):
+            st.write(f"**{key}:** {val:,.2f}")
+        elif val is not None:
+            st.write(f"**{key}:** {val}")
 
     # Remarks
     st.info(f"📌 {result['Remarks']}")
@@ -202,16 +192,17 @@ if submitted:
     if result["Total % Mass (Water+Acid+Proppant)"] < 90 or result["Total % Mass (Water+Acid+Proppant)"] > 110:
         st.warning("⚠️ Mass balance outside 90–110%. Please verify input values.")
 
-    # Pie Chart (3D effect via shadow)
+    # Smaller Pie Chart
     labels = ["Water", "HCL", "Proppant"]
     sizes = [water_percent, hcl_percent, sum(proppant_percents)]
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(4, 4))  # smaller
     ax.pie(sizes, labels=labels, autopct='%1.1f%%', shadow=True, startangle=90)
     ax.axis('equal')
     st.pyplot(fig)
 
     # Excel Export
     excel_file = "frac_fluid_results.xlsx"
+    df = pd.DataFrame([result])
     df.to_excel(excel_file, index=False)
     with open(excel_file, "rb") as f:
         st.download_button("⬇️ Download Excel", f, file_name=excel_file, mime="application/vnd.ms-excel")
