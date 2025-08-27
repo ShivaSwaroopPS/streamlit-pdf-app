@@ -8,7 +8,7 @@ import time
 
 st.set_page_config(page_title="Frac Fluid Calculator", layout="wide")
 
-st.title("🧪 Frac Fluid Calculation Tool v2.0")
+st.title(" Frac Fluid Calculation Tool v2.0")
 st.markdown("Upload a FracFocus PDF or enter values manually to calculate fluid volumes.")
 
 # --- PDF Extraction ---
@@ -125,7 +125,7 @@ def calculate(total_water_volume, water_percent, hcl_percent, proppant_percents,
     }
 
 # === Single Well Mode ===
-st.markdown("## 🛢 Single Well Mode")
+st.markdown("##  Single Well Mode")
 
 uploaded_file = st.file_uploader("📄 Upload a single FracFocus PDF", type=["pdf"], key="single")
 
@@ -157,7 +157,7 @@ with st.sidebar:
     gas_type = st.selectbox("Gas Type", ["None", "Nitrogen (N2)", "Carbon Dioxide (CO2)"])
     gas_percent = st.number_input("Gas Concentration (%)", value=values.get("gas_percent", 0.0), step=0.0001)
 
-submitted = st.button("🚀 Calculate (Single Well)")
+submitted = st.button(" Calculate (Single Well)")
 
 if submitted:
     result = calculate(total_water_volume, water_percent, hcl_percent, proppant_percents, gas_percent, gas_type)
@@ -202,7 +202,7 @@ if submitted:
 
 # === Multi-Well Batch Mode ===
 st.markdown("---")
-st.markdown("## 📂 Multi-Well Batch Mode")
+st.markdown("##  Multi-Well Batch Mode")
 
 fun_phrases = [
     "🚀 Now we are talking!",
@@ -258,4 +258,5 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
