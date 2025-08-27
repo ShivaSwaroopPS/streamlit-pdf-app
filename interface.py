@@ -88,7 +88,7 @@ if st.button("💻 Run Hacker Loader"):
 
     placeholder = st.empty()
     for msg in messages:
-        placeholder.markdown(f'<div class="terminal">{msg}</div>', unsafe_allow_ht
+        placeholder.markdown(f'<div class="terminal">{msg}</div>', unsafe_allow_ht)
 
 # --- PDF Extraction ---
 def extract_values_from_pdf(file):
@@ -337,6 +337,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
