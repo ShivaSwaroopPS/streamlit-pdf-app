@@ -8,7 +8,7 @@ import time
 
 st.set_page_config(page_title="Frac Fluid Calculator", layout="wide")
 
-st.title("🧪 Frac Fluid Calculation Tool v3.2")
+st.title("🧪 Frac Fluid Calculation Tool v2.0")
 st.markdown("Upload a FracFocus PDF or enter values manually to calculate fluid volumes.")
 
 # --- PDF Extraction ---
@@ -138,7 +138,7 @@ values = {
     "raw_lines": []
 }
 if uploaded_file:
-    st.success("✅ PDF uploaded. Extracting values...")
+    st.success("✅ Targets acquired, numbers incoming….")
     values.update(extract_values_from_pdf(uploaded_file))
 
 with st.sidebar:
@@ -258,3 +258,4 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
