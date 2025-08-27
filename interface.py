@@ -11,44 +11,39 @@ st.set_page_config(page_title="Frac Fluid Calculator", layout="wide")
 # === Custom CSS Styling & Animations ===
 st.markdown("""
 <style>
-/* Glowing Title */
-.glow-text {
-  font-size: 40px;
-  font-weight: bold;
-  color: #00ffcc;
-  text-align: center;
-  animation: glow 2s infinite;
-}
-@keyframes glow {
-  0% { text-shadow: 0 0 5px #00ffcc; }
-  50% { text-shadow: 0 0 20px #00ffcc, 0 0 30px #009999; }
-  100% { text-shadow: 0 0 5px #00ffcc; }
+/* Full black background */
+body {
+    background-color: #000000;
+    color: white;
 }
 
-/* Typewriter effect for remarks */
-.typewriter {
-  overflow: hidden;
-  border-right: .15em solid orange;
-  white-space: nowrap;
-  animation: typing 3s steps(40, end), blink .75s step-end infinite;
+/* Big Glowing Title */
+.glow-text {
+  font-size: 60px;   /* Bigger title */
+  font-weight: bold;
+  text-align: center;
+  color: #00ffcc;
+  text-shadow: 0 0 10px #00ffcc, 0 0 20px #00cccc, 0 0 30px #009999;
+  animation: glow 2s infinite alternate;
 }
-@keyframes typing {
-  from { width: 0 }
-  to { width: 100% }
-}
-@keyframes blink {
-  50% { border-color: transparent }
+
+@keyframes glow {
+  from { text-shadow: 0 0 10px #00ffcc, 0 0 20px #00cccc, 0 0 30px #009999; }
+  to { text-shadow: 0 0 20px #00ffcc, 0 0 40px #00cccc, 0 0 60px #00ffff; }
 }
 
 /* Fancy Hover Buttons */
 div.stButton > button {
-  background-color: #0066cc;
-  color: white;
-  border-radius: 8px;
+  background-color: #222222;
+  color: #00ffcc;
+  font-weight: bold;
+  border-radius: 10px;
+  border: 1px solid #00ffcc;
   transition: 0.3s;
 }
 div.stButton > button:hover {
-  background-color: #00cc88;
+  background-color: #00ffcc;
+  color: black;
   transform: scale(1.1);
 }
 </style>
@@ -56,7 +51,8 @@ div.stButton > button:hover {
 
 # === Title with glow effect ===
 st.markdown('<p class="glow-text">🧪 Frac Fluid Calculation Tool v2.0</p>', unsafe_allow_html=True)
-st.markdown("Upload a FracFocus PDF or enter values manually to calculate fluid volumes.")
+st.markdown("<p style='text-align:center; font-size:20px;'>Upload a FracFocus PDF or enter values manually to calculate fluid volumes.</p>", unsafe_allow_html=True)
+
 
 # --- PDF Extraction ---
 def extract_values_from_pdf(file):
@@ -306,3 +302,4 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
