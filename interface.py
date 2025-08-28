@@ -159,14 +159,16 @@ def extract_values_from_pdf(file):
     }
 
 # --- Calculation Logic ---
+# --- Calculation Logic ---
 def calculate(total_water_volume, water_percent, hcl_percent, proppant_percents, gas_percent, gas_type):
     WATER_DENSITY_LBPGAL = 8.3454
     HCL_DENSITY_LBPGAL = 8.95
     GALLONS_PER_BBL = 42
 
-    total_proppant_percent = sum(proppant_percents)
+    total_proppant_percent = sum(proppant_percents or [])
     total_mass_percent = (water_percent or 0) + (hcl_percent or 0) + total_proppant_percent
 
+    # ✅ Base weights
     total_water_weight = total_water_volume * WATER_DENSITY_LBPGAL
     total_acid_weight = (hcl_percent / 100) * total_water_weight if hcl_percent else 0
     total_acid_volume_gal = total_acid_weight / HCL_DENSITY_LBPGAL if total_acid_weight else 0
@@ -175,10 +177,15 @@ def calculate(total_water_volume, water_percent, hcl_percent, proppant_percents,
     total_ff_fluid_volume_gal = total_water_volume - total_acid_volume_gal
     total_ff_fluid_volume_bbl = total_ff_fluid_volume_gal / GALLONS_PER_BBL if total_ff_fluid_volume_gal else 0
 
-    total_proppant_weight = (total_proppant_percent / 100) * total_water_weight if total_proppant_percent else 0
+    # ✅ Corrected Proppant Weight calc (same as Excel B10*B18/B3)
+    total_proppant_weight = 0
+    if total_proppant_percent and water_percent:
+        total_proppant_weight = (total_proppant_percent / water_percent) * total_water_weight
+
     proppant_weight_tons = total_proppant_weight / 2000 if total_proppant_weight else 0
     ppg = total_proppant_weight / total_ff_fluid_volume_gal if total_ff_fluid_volume_gal else math.nan
 
+    # Gas calcs
     nitrogen_volume_scf = None
     co2_weight_tons = None
     gas_weight_lbs = None
@@ -203,7 +210,7 @@ def calculate(total_water_volume, water_percent, hcl_percent, proppant_percents,
         "Total Acid(HCL) Volume (bbl)": total_acid_volume_bbl,
         "Total FF Fluid Volume (gal)": total_ff_fluid_volume_gal,
         "Total FF Fluid Volume (bbl)": total_ff_fluid_volume_bbl,
-        "Total Proppant Weight (lbs)": total_proppant_weight,
+        "Total Proppant Weight (lbs)": total_proppant_weight,   # ✅ Excel-matching
         "Proppant Weight (tons)": proppant_weight_tons,
         "Proppant to Fluid Ratio (PPG)": ppg,
         "Total Gas Weight (lbs)": gas_weight_lbs,
@@ -211,6 +218,7 @@ def calculate(total_water_volume, water_percent, hcl_percent, proppant_percents,
         "Total Nitrogen Volume (SCF)": nitrogen_volume_scf,
         "Remarks": remark
     }
+
 
 # === Single Well Mode ===
 st.markdown("##  Single Well Mode")
@@ -351,6 +359,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
