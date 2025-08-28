@@ -257,7 +257,13 @@ with st.sidebar:
     proppant_percents = []
     for i in range(1, 7):
         val = values["proppant_percent"] if i == 1 else 0.0
-        p = st.number_input(f"Proppant {i} (%)", value=val, step=0.0001)
+        p = st.number_input(
+            f"Proppant {i} (%)", 
+            value=val, 
+            step=0.00001,              # allow finer steps
+            format="%.5f"              # keep up to 5 decimals
+        )
+
         proppant_percents.append(p)
 
     gas_type = st.selectbox("Gas Type", ["None", "Nitrogen (N2)", "Carbon Dioxide (CO2)"])
@@ -364,6 +370,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
