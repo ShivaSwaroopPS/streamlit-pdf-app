@@ -253,9 +253,24 @@ if uploaded_file:
 
 with st.sidebar:
     st.header("⚙️ Inputs (Single Well)")
-    total_water_volume = st.number_input("Total Base Water Volume (gallons)", value=float(values["total_water_volume"] or 0), step=0.0001,format="%.5f")
-    water_percent = st.number_input("Water Concentration (%)", value=values["water_percent"] or 0.0, step=0.0001,format="%.5f")
-    hcl_percent = st.number_input("HCL Concentration (%)", value=values["hcl_percent"] or 0.0, step=0.0001,format="%.5f")
+    total_water_volume = st.number_input(
+        "Total Base Water Volume (gallons)", 
+        value=float(values["total_water_volume"] or 0), 
+        step=0.000001, 
+        format="%.6f"
+    )
+    water_percent = st.number_input(
+        "Water Concentration (%)", 
+        value=values["water_percent"] or 0.0, 
+        step=0.000001, 
+        format="%.6f"
+    )
+    hcl_percent = st.number_input(
+        "HCL Concentration (%)", 
+        value=values["hcl_percent"] or 0.0, 
+        step=0.000001, 
+        format="%.6f"
+    )
 
     st.subheader("Proppant Concentrations (%)")
     proppant_percents = []
@@ -264,11 +279,11 @@ with st.sidebar:
         p = st.number_input(
             f"Proppant {i} (%)", 
             value=val, 
-            step=0.00001,              # allow finer steps
-            format="%.5f"              # keep up to 5 decimals
+            step=0.000001, 
+            format="%.6f"
         )
-
         proppant_percents.append(p)
+
 
     gas_type = st.selectbox("Gas Type", ["None", "Nitrogen (N2)", "Carbon Dioxide (CO2)"])
     gas_percent = st.number_input("Gas Concentration (%)", value=values.get("gas_percent", 0.0), step=0.0001)
@@ -374,6 +389,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
