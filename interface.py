@@ -165,7 +165,11 @@ def calculate(total_water_volume, water_percent, hcl_percent, proppant_percents,
     HCL_DENSITY_LBPGAL = 8.95        # 15% HCL
     GALLONS_PER_BBL = 42
 
+    # Excel logic: (B4...C9) → sum of all proppants
     total_proppant_percent = sum(proppant_percents or [])
+    if total_proppant_percent and water_percent:
+        total_proppant_weight = (total_proppant_percent / water_percent) * total_water_weight
+
     total_mass_percent = (water_percent or 0) + (hcl_percent or 0) + total_proppant_percent
 
     # Base water weight
@@ -249,9 +253,9 @@ if uploaded_file:
 
 with st.sidebar:
     st.header("⚙️ Inputs (Single Well)")
-    total_water_volume = st.number_input("Total Base Water Volume (gallons)", value=float(values["total_water_volume"] or 0), step=1.0, format="%.0f")
-    water_percent = st.number_input("Water Concentration (%)", value=values["water_percent"] or 0.0, step=0.0001)
-    hcl_percent = st.number_input("HCL Concentration (%)", value=values["hcl_percent"] or 0.0, step=0.0001)
+    total_water_volume = st.number_input("Total Base Water Volume (gallons)", value=float(values["total_water_volume"] or 0), step=0.0001,format="%.5f")
+    water_percent = st.number_input("Water Concentration (%)", value=values["water_percent"] or 0.0, step=0.0001,format="%.5f")
+    hcl_percent = st.number_input("HCL Concentration (%)", value=values["hcl_percent"] or 0.0, step=0.0001,format="%.5f")
 
     st.subheader("Proppant Concentrations (%)")
     proppant_percents = []
@@ -283,7 +287,7 @@ if submitted:
     st.markdown("### 🧮 Detailed Results")
     for key, val in result.items():
         if isinstance(val, (int, float)) and not pd.isna(val):
-            st.write(f"**{key}:** {val:.2f}")
+            st.write(f"**{key}:** {int(val)}")
         elif val is not None:
             st.write(f"**{key}:** {val}")
 
@@ -370,6 +374,7 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
+
 
 
 
