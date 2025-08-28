@@ -1,10 +1,12 @@
-import streamlit as st 
+import streamlit as st
 import pdfplumber
 import re
 import pandas as pd
 import math
 import random
 import time
+
+import streamlit as st
 
 st.set_page_config(page_title="Frac Fluid Calculator", layout="wide")
 
@@ -13,7 +15,7 @@ st.markdown("""
 <style>
 /* 🔥 Fire Typewriter Effect (dark text on white) */
 .typewriter {
-  font-size: 16px;        /* medium size */
+  font-size: 40px;        /* medium size */
   font-weight: bold;
   color: #222222;         /* dark grey/black text for contrast */
   display: inline-block;
@@ -47,16 +49,6 @@ st.markdown("""
   from { text-shadow: 0 0 5px #ff9900, 0 0 10px #ff6600, 0 0 20px #ff3300; }
   to   { text-shadow: 0 0 10px #ffcc00, 0 0 15px #ff5500, 0 0 25px #ff2200; }
 }
-
-/* Terminal style text for hacker loader */
-.terminal {
-  font-size: 14px;
-  color: #00FF00;
-  background-color: #000000;
-  font-family: "Courier New", monospace;
-  padding: 10px;
-  border-radius: 5px;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -72,31 +64,6 @@ st.markdown("""
 Upload a FracFocus PDF or enter values manually to calculate fluid volumes.
 </p>
 """, unsafe_allow_html=True)
-
-# === Hacker Loader Button ===
-if st.button("Refresh Loader"):
-    messages = [
-        "> Initializing system...",
-        "> Parsing chemical composition...",
-        "> Calculating proppant load...",
-        "> Normalizing water volumes...",
-        "> Running mass balance checks...",
-        "> Optimizing data pipeline...",
-        "> Finalizing results...",
-        "✅ Job complete. Ready for action."
-    ]
-
-    placeholder = st.empty()
-    for msg in messages:
-        placeholder.markdown(f'<div class="terminal">{msg}</div>', unsafe_allow_html=True)
-        time.sleep(1)
-
-    # 🔄 Clear session completely
-    st.session_state.clear()
-    # Change uploader key so uploaded PDF disappears
-    st.session_state["uploader_key"] = str(random.randint(1000, 9999))
-
-    st.success("🔄 Session cleared. Ready for fresh input.")
 
 
 # --- PDF Extraction ---
@@ -158,41 +125,42 @@ def extract_values_from_pdf(file):
         "raw_lines": fixed_lines
     }
 
-# --- Calculation Logic (Excel-Matching, No Rounding) ---
+# --- Calculation Logic ---
 def calculate(total_water_volume, water_percent, hcl_percent, proppant_percents, gas_percent, gas_type):
-    # Match Excel constants
-    WATER_DENSITY_LBPGAL = 8.34      # use Excel's convention
-    HCL_DENSITY_LBPGAL = 8.95        # 15% HCL
+    # === Constants (Excel convention) ===
+    WATER_DENSITY_LBPGAL = 8.3454   # Excel constant
+    HCL_DENSITY_LBPGAL = 8.95       # Approx. 15% HCL density
     GALLONS_PER_BBL = 42
 
-    # Excel logic: (B4...C9) → sum of all proppants
-    total_proppant_percent = sum(proppant_percents or [])
-    if total_proppant_percent and water_percent:
-        total_proppant_weight = (total_proppant_percent / water_percent) * total_water_weight
-
-    total_mass_percent = (water_percent or 0) + (hcl_percent or 0) + total_proppant_percent
-
-    # Base water weight
+    # --- Step 1: Base water weight ---
     total_water_weight = total_water_volume * WATER_DENSITY_LBPGAL
 
-    # Acid calculations
-    total_acid_weight = (hcl_percent / 100) * total_water_weight if hcl_percent else 0
-    total_acid_volume_gal = total_acid_weight / HCL_DENSITY_LBPGAL if total_acid_weight else 0
-    total_acid_volume_bbl = total_acid_volume_gal / GALLONS_PER_BBL if total_acid_volume_gal else 0
+    # --- Step 2: Proppant % ---
+    total_proppant_percent = sum(proppant_percents or [])
 
-    # Adjust FF fluid volume
-    total_ff_fluid_volume_gal = total_water_volume - total_acid_volume_gal
-    total_ff_fluid_volume_bbl = total_ff_fluid_volume_gal / GALLONS_PER_BBL if total_ff_fluid_volume_gal else 0
-
-    # ✅ Corrected Proppant Weight (Excel logic: B10 * B18 / B3)
+    # ✅ Excel-style formula (B27 = B10 * B18 / B3)
     total_proppant_weight = 0.0
     if total_proppant_percent and water_percent:
         total_proppant_weight = (total_proppant_percent / water_percent) * total_water_weight
 
     proppant_weight_tons = total_proppant_weight / 2000 if total_proppant_weight else 0.0
+
+    # --- Step 3: Mass % check ---
+    total_mass_percent = (water_percent or 0) + (hcl_percent or 0) + total_proppant_percent
+
+    # --- Step 4: Acid calculations ---
+    total_acid_weight = (hcl_percent / 100) * total_water_weight if hcl_percent else 0
+    total_acid_volume_gal = total_acid_weight / HCL_DENSITY_LBPGAL if total_acid_weight else 0
+    total_acid_volume_bbl = total_acid_volume_gal / GALLONS_PER_BBL if total_acid_volume_gal else 0
+
+    # --- Step 5: FF fluid volume (minus acid) ---
+    total_ff_fluid_volume_gal = total_water_volume - total_acid_volume_gal
+    total_ff_fluid_volume_bbl = total_ff_fluid_volume_gal / GALLONS_PER_BBL if total_ff_fluid_volume_gal else 0
+
+    # --- Step 6: PPG ---
     ppg = total_proppant_weight / total_ff_fluid_volume_gal if total_ff_fluid_volume_gal else math.nan
 
-    # Gas calcs
+    # --- Step 7: Gas calculations ---
     nitrogen_volume_scf = None
     co2_weight_tons = None
     gas_weight_lbs = None
@@ -209,6 +177,7 @@ def calculate(total_water_volume, water_percent, hcl_percent, proppant_percents,
     else:
         remark = "No gas contribution reported."
 
+    # --- Final results dictionary ---
     return {
         "Total % Mass (Water+Acid+Proppant)": total_mass_percent,
         "Total Water Weight (lbs)": total_water_weight,
@@ -217,7 +186,7 @@ def calculate(total_water_volume, water_percent, hcl_percent, proppant_percents,
         "Total Acid(HCL) Volume (bbl)": total_acid_volume_bbl,
         "Total FF Fluid Volume (gal)": total_ff_fluid_volume_gal,
         "Total FF Fluid Volume (bbl)": total_ff_fluid_volume_bbl,
-        "Total Proppant Weight (lbs)": total_proppant_weight,   # Excel-matching
+        "Total Proppant Weight (lbs)": total_proppant_weight,   # ✅ Matches Excel
         "Proppant Weight (tons)": proppant_weight_tons,
         "Proppant to Fluid Ratio (PPG)": ppg,
         "Total Gas Weight (lbs)": gas_weight_lbs,
@@ -226,18 +195,10 @@ def calculate(total_water_volume, water_percent, hcl_percent, proppant_percents,
         "Remarks": remark
     }
 
-
-
-
 # === Single Well Mode ===
 st.markdown("##  Single Well Mode")
 
-uploaded_file = st.file_uploader(
-    "📄 Upload a FracFocus PDF",
-    type=["pdf"],
-    key=st.session_state.get("uploader_key", "default_uploader")
-)
-
+uploaded_file = st.file_uploader("📄 Upload a single FracFocus PDF", type=["pdf"], key="single")
 
 values = {
     "total_water_volume": None,
@@ -253,37 +214,16 @@ if uploaded_file:
 
 with st.sidebar:
     st.header("⚙️ Inputs (Single Well)")
-    total_water_volume = st.number_input(
-        "Total Base Water Volume (gallons)", 
-        value=float(values["total_water_volume"] or 0), 
-        step=0.000001, 
-        format="%.6f"
-    )
-    water_percent = st.number_input(
-        "Water Concentration (%)", 
-        value=values["water_percent"] or 0.0, 
-        step=0.000001, 
-        format="%.6f"
-    )
-    hcl_percent = st.number_input(
-        "HCL Concentration (%)", 
-        value=values["hcl_percent"] or 0.0, 
-        step=0.000001, 
-        format="%.6f"
-    )
+    total_water_volume = st.number_input("Total Base Water Volume (gallons)", value=float(values["total_water_volume"] or 0), step=1.0, format="%.0f")
+    water_percent = st.number_input("Water Concentration (%)", value=values["water_percent"] or 0.0, step=0.0001)
+    hcl_percent = st.number_input("HCL Concentration (%)", value=values["hcl_percent"] or 0.0, step=0.0001)
 
     st.subheader("Proppant Concentrations (%)")
     proppant_percents = []
     for i in range(1, 7):
         val = values["proppant_percent"] if i == 1 else 0.0
-        p = st.number_input(
-            f"Proppant {i} (%)", 
-            value=val, 
-            step=0.000001, 
-            format="%.6f"
-        )
+        p = st.number_input(f"Proppant {i} (%)", value=val, step=0.0001)
         proppant_percents.append(p)
-
 
     gas_type = st.selectbox("Gas Type", ["None", "Nitrogen (N2)", "Carbon Dioxide (CO2)"])
     gas_percent = st.number_input("Gas Concentration (%)", value=values.get("gas_percent", 0.0), step=0.0001)
@@ -302,7 +242,7 @@ if submitted:
     st.markdown("### 🧮 Detailed Results")
     for key, val in result.items():
         if isinstance(val, (int, float)) and not pd.isna(val):
-            st.write(f"**{key}:** {int(val)}")
+            st.write(f"**{key}:** {val:.2f}")
         elif val is not None:
             st.write(f"**{key}:** {val}")
 
@@ -389,26 +329,5 @@ else:
             batch_df.to_excel(excel_file, index=False)
             with open(excel_file, "rb") as f:
                 st.download_button("⬇️ Download All Results (Excel)", f, file_name=excel_file, mime="application/vnd.ms-excel")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
